@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Sphinx
+docs/_build/
+
+# Testing
+.cache/
+.hypothesis/
