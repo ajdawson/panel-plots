@@ -1,5 +1,5 @@
 """Tests for `panels.PanelSizeLocator`."""
-# Copyright 2016 Andrew Dawson
+# Copyright 2017 Andrew Dawson
 #
 # This file is part of panel-plots.
 #
@@ -23,7 +23,7 @@ import pytest
 
 from panels import PanelSizeLocator
 from panels.tests import (check_panels_in_figure, gridsize_st, length_st,
-                          offset_st)
+                          offset_st, almost_equal)
 
 
 #: Length units to generate test cases for.
@@ -199,3 +199,27 @@ def test_with_pad_and_sep(rows, columns, panelwidth, panelheight, hsep, vsep,
     assert figheight == (padtop + rows * panelheight +
                          (rows - 1) * vsep + padbottom)
     check_panels_in_figure(l)
+
+
+#-----------------------------------------------------------------------
+# Tests for iterating over panels.
+#-----------------------------------------------------------------------
+
+@given(rows=gridsize_st, columns=gridsize_st)
+def test_iterate_row_major(rows, columns):
+    l = PanelSizeLocator(rows, columns, 1, 1)
+    dx = 1. / columns
+    dy = 1. / rows
+    for n, pp in enumerate(l.panel_position_iterator()):
+        assert almost_equal((n % columns) * dx, pp[0])
+        assert almost_equal(1 - (n // columns + 1) * dy, pp[1])
+
+
+@given(rows=gridsize_st, columns=gridsize_st)
+def test_iterate_column_major(rows, columns):
+    l = PanelSizeLocator(rows, columns, 1, 1)
+    dx = 1. / columns
+    dy = 1. / rows
+    for n, pp in enumerate(l.panel_position_iterator(order='column')):
+        assert almost_equal((n // rows) * dx, pp[0])
+        assert almost_equal(1 - (n % rows + 1) * dy, pp[1])
