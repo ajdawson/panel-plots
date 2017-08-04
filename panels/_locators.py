@@ -109,10 +109,25 @@ class PanelSizeLocator(object):
         return (convert_units(self.figwidth, self.units, units),
                 convert_units(self.figheight, self.units, units))
 
-    def panel_position_iterator(self):
-        """Returns a generator of panel positions."""
-        return (self.panel_position(r, c)
-                for r in range(self.rows) for c in range(self.columns))
+    def panel_position_iterator(self, major='row'):
+        """Returns a generator of panel positions.
+
+        Keyword argument:
+
+        major (default='row'): str
+           The order in which panels are iterated over (row-major or column-
+           major).
+
+        """
+        if major == 'row':
+            return (self.panel_position(r, c)
+                    for r in range(self.rows) for c in range(self.columns))
+        elif major == 'column':
+            return (self.panel_position(r, c)
+                    for c in range(self.columns) for r in range(self.rows))
+        else:
+            raise ValueError('the "major" keyword must be either "row" or '
+                             '"column"')
 
     def panel_position(self, row, column):
         """
