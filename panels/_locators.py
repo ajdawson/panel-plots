@@ -1,5 +1,5 @@
 """Definitions of panel locators."""
-# Copyright 2016 Andrew Dawson
+# Copyright 2017 Andrew Dawson
 #
 # This file is part of panel-plots.
 #
@@ -18,6 +18,7 @@
 
 from __future__ import (absolute_import, division, print_function)
 
+from itertools import product
 import warnings
 
 from ._units import convert_units
@@ -109,10 +110,26 @@ class PanelSizeLocator(object):
         return (convert_units(self.figwidth, self.units, units),
                 convert_units(self.figheight, self.units, units))
 
-    def panel_position_iterator(self):
-        """Returns a generator of panel positions."""
-        return (self.panel_position(r, c)
-                for r in range(self.rows) for c in range(self.columns))
+    def panel_position_iterator(self, order='row'):
+        """
+        Returns a generator of panel positions.
+
+        Keyword argument:
+
+        * order (default='row'): str
+            The order in which panels are iterated over. Accepted values
+            are "row" for row-major order (columns then rows), or
+            "column" for column-major order (rows then columns).
+
+        """
+        row_gen = range(self.rows)
+        col_gen = range(self.columns)
+        try:
+            i0, i1, g0, g1 = {'row': (0, 1, row_gen, col_gen),
+                              'column': (1, 0, col_gen, row_gen)}[order]
+        except KeyError:
+            raise ValueError('the order keyword must be either "row" or "column"')
+        return (self.panel_position(x[i0], x[i1]) for x in product(g0, g1))
 
     def panel_position(self, row, column):
         """
